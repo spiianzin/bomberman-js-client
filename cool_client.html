@@ -1,0 +1,70 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>TEST</title>
+  <script src="cool_client.js"></script>
+</head>
+<body id="body">
+  <textarea id="text" readonly=true style="display: block; width: 100%; height: 100%; resize: none;"></textarea>
+  <script type="text/javascript">
+
+    var isBlock = function(block)
+    {
+      var result = false;
+      result =
+        block == BombermanBlocks.Wall ||
+        block == BombermanBlocks.WallDestroyable ||
+        block == BombermanBlocks.MeatChopper ||
+        block == BombermanBlocks.BombTimer1 ||
+        block == BombermanBlocks.BombTimer2 ||
+        block == BombermanBlocks.BombTimer3 ||
+        block == BombermanBlocks.BombTimer4 ||
+        block == BombermanBlocks.BombTimer5 ||
+        block == BombermanBlocks.OtherBomberman ||
+        block == BombermanBlocks.OtherBombBomberman;
+      return result;
+    };
+
+    var gcb = new GameClient("52.232.32.105:8080", "runnner@gmail.com", "runner2");
+    var direction = 1;
+    gcb.run(function() {
+        text.value += "1\n";
+        var done = false;
+        if (!gcb.isBombSetted) {
+            gcb.act();
+            gcb.bomb();
+            done = true;
+        }
+        if (!done) {
+          if (isBlock(gcb.map[gcb.playerY - 1][gcb.playerX]) == false) { gcb.up();    done = true; }
+          if (isBlock(gcb.map[gcb.playerY][gcb.playerX + 1]) == false) { gcb.right(); done = true; }
+          if (isBlock(gcb.map[gcb.playerY + 1][gcb.playerX]) == false) { gcb.down();  done = true; }
+         	if (isBlock(gcb.map[gcb.playerY][gcb.playerX - 1]) == false) { gcb.left();  done = true; }
+          if (done == false)
+            gcb.blank();
+          }
+        gcb.tic();
+    });
+
+    gcb.onopen = function()
+    {
+      text.value += "Соединение установлено.\n";
+    };
+
+    gcb.onclose = function(event)
+    {
+      if (event.wasClean)
+        text.value += "Соединение закрыто чисто";
+      else
+        text.value += "Обрыв соединения";
+
+      text.value += " - Код: " + event.code + ", Причина: " + event.reason + "\n";
+    };
+
+    gcb.onerror = function(error)
+    {
+      text.value += "Ошибка: " + error.message + "\n";
+    };
+  </script>
+</body>
+</html>
