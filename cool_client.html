@@ -10,13 +10,14 @@
   <script type="text/javascript">
 
     var gcb = new GameClient("52.232.32.105:8080", "runnner@gmail.com", "runner2");
-    var gameManager = new GameManager(gcb);
+    var gameManager = new GameManager(gcb, text);
 
-    gcb.run(gameManager.behaviour.bind(gameManager, text));
+    gcb.run(gameManager.logic.bind(gameManager));
 
     gcb.onopen = function()
     {
       text.value += "Соединение установлено.\n";
+      text.value += gameManager.state + "\n";
     };
 
     gcb.onclose = function(event)

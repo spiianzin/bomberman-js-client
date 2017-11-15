@@ -36,26 +36,62 @@ var Direction = {
     LEFT : "LEFT"
 };
 
+var State = {
+    WALKING: "***WALKING***",
+    SAVING: "***SAVING***"
+}
+
+var log = function(logger, text) {
+    logger.value += text + "\n";
+}
+
 class GameManager {
-    constructor(client) {
+    constructor(client, text) {
         this.client = client;
         this.isBombSetted = false;
         this.bombTimer = 0;
         this.direction = Direction.UP;
+        this.state = State.WALKING;
+        this.dangerSearch = new DangerSearch();
+        this.logger = new Logger(text);
     }
 
-    behaviour(text) {
+    logic() {
+        if (this.dangerSearch.isDangerous()) {
+            this.state = State.SAVING;
+            this.logger.log(State.SAVING); 
+        }
+        
+        if (this.state != State.WALKING){
+            this.state = State.WALKING;
+            this.logger.log(State.WALKING);
+        }
+
+        switch(this.state) {
+            case State.WALKING: this.walking(); break;
+            case State.SAVING: this.save_ass(); break;
+        }
+
+    }
+
+    save_ass() {
+        
+    }
+
+    walking() {
+        
         var done = false;
         if (!this.isBombSetted) {
             this.client.act();
             this.bomb();
+            this.logger.log("BOMB HAS BEEN PLANTED");
             done = true;
         }
         if (!this.isDirectionFree(this.direction)) {
             this.direction = this.getFreeDirection(this.client.playerX, this.client.playerY, this.client.map);
         }
 
-        text.value += this.direction + "\n";
+        this.logger.log(this.direction);
         this.goTo(this.direction);
         this.tic();
     }
@@ -122,3 +158,27 @@ class GameManager {
     }
 };
 
+class DangerSearch {
+
+    isDangerous() {
+        return this.isBombLine() || this.isEnemyClose();
+    }
+
+    isBombLine() {
+        return false;
+    }
+
+    isEnemyClose() {
+        return false;
+    }
+}
+
+class Logger {
+    constructor(elem) {
+        this.logger = elem;
+    }
+
+    log(text) {
+        this.logger.value += text + "\n";
+    }
+}
