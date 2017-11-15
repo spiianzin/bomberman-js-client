@@ -38,7 +38,8 @@ var Direction = {
 
 var State = {
     WALKING: "***WALKING***",
-    SAVING: "***SAVING***"
+    SAVING: "***SAVING***",
+    ATACK: "***ATACK***"
 }
 
 var log = function(logger, text) {
@@ -57,12 +58,13 @@ class GameManager {
     }
 
     logic() {
-        if (this.dangerSearch.isDangerous()) {
-            this.state = State.SAVING;
-            this.logger.log(State.SAVING); 
-        }
-        
-        if (this.state != State.WALKING){
+        this.atack(); 
+        if (this.dangerSearch.isDangerous(this.client.playerX, this.client.playerY, this.client.map)) {
+            if (this.state != State.SAVING) {
+                this.state = State.SAVING;
+                this.logger.log(State.SAVING); 
+            }
+        } else if (this.state != State.WALKING) {
             this.state = State.WALKING;
             this.logger.log(State.WALKING);
         }
@@ -75,18 +77,10 @@ class GameManager {
     }
 
     save_ass() {
-        
+        this.walking();
     }
 
     walking() {
-        
-        var done = false;
-        if (!this.isBombSetted) {
-            this.client.act();
-            this.bomb();
-            this.logger.log("BOMB HAS BEEN PLANTED");
-            done = true;
-        }
         if (!this.isDirectionFree(this.direction)) {
             this.direction = this.getFreeDirection(this.client.playerX, this.client.playerY, this.client.map);
         }
@@ -94,6 +88,18 @@ class GameManager {
         this.logger.log(this.direction);
         this.goTo(this.direction);
         this.tic();
+    }
+
+    atack() {
+        if (!this.isBombSetted) {
+            this.client.act();
+            this.bomb();
+            this.logger.log("Bomb has been planted");
+        }
+    }
+
+    goback() {
+
     }
 
     bomb() {
@@ -160,16 +166,38 @@ class GameManager {
 
 class DangerSearch {
 
-    isDangerous() {
-        return this.isBombLine() || this.isEnemyClose();
+    constructor() {
+        this.BOMB_AREA = 3;
     }
 
-    isBombLine() {
+    isDangerous(x, y, map) {
+        return this.isBombLine(x, y, map) || this.isEnemyClose();
+    }
+
+    isBombLine(x, y, map) {
+        var me = this;
+        for (var offset = 1; offset <= this.BOMB_AREA; offset++) {
+            if (this.isBomb(map[y][x + offset]) ||
+                this.isBomb(map[y][x - offset]) ||
+                this.isBomb(map[y + offset][x]) ||
+                this.isBomb(map[y - offset][x])) {
+                return true;
+            }
+        }
         return false;
     }
 
     isEnemyClose() {
         return false;
+    }
+
+    isBomb(block) {
+        return  block == BombermanBlocks.BombTimer1 ||
+                block == BombermanBlocks.BombTimer2 ||
+                block == BombermanBlocks.BombTimer3 ||
+                block == BombermanBlocks.BombTimer4 ||
+                block == BombermanBlocks.BombTimer5 ||
+                block == BombermanBlocks.OtherBombBomberman;
     }
 }
 
