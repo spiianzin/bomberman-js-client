@@ -77,7 +77,12 @@ class GameManager {
     }
 
     save_ass() {
-        this.walking();
+	   if (!this.isDirectionSafe(this.direction))
+	   {
+		   this.direction = this.getSafeDirection(this.client.playerX, this.client.playerY, this.client.map)
+	   }
+	   this.goTo(this.direction);
+	   this.tic();
     }
 
     walking() {
@@ -87,7 +92,7 @@ class GameManager {
 
         this.logger.log(this.direction);
         this.goTo(this.direction);
-        this.tic();
+        this.tic();	
     }
 
     atack() {
@@ -135,21 +140,35 @@ class GameManager {
         block == BombermanBlocks.OtherBombBomberman;
       return result;
     }
+	getSafeDirection(x,y,map) {
+        var direction = Direction.UP;
 
+        if ((this.isBlock(map[y-1][x]) == false) &&	(this.dangerSearch.isBombLine(x,y-1,map)==false) && (this.isBlock(this.client.map[this.client.playerY-2][this.client.playerX]) == false)){}
+        else if ((this.isBlock(map[y][x + 1]) == false) && (this.dangerSearch.isBombLine(x+1,y,map)==false) && (this.isBlock(this.client.map[this.client.playerY][this.client.playerX+2]) == false)) { direction = Direction.RIGHT; }
+        else if ((this.isBlock(map[y+1][x]) == false) && (this.dangerSearch.isBombLine(x,y+1,map)==false) && (this.isBlock(this.client.map[this.client.playerY+2][this.client.playerX]) == false)) { direction = Direction.DOWN; }
+        else if ((this.isBlock(map[y][x - 1]) == false) && (this.dangerSearch.isBombLine(x-1,y,map)==false) && (this.isBlock(this.client.map[this.client.playerY][this.client.playerX-2]) == false)) { direction = Direction.LEFT; }
+		else {direction = this.direction}
+        return direction;
+    }
+	isDirectionSafe(direction) {
+        switch(direction) {
+            case Direction.UP: return ((this.isBlock(this.client.map[this.client.playerY - 1][this.client.playerX]) == false) && (this.dangerSearch.isBombLine(this.client.playerX, this.client.playerY-1, this.client.map) == false))
+            case Direction.RIGHT: return ((this.isBlock(this.client.map[this.client.playerY][this.client.playerX + 1]) == false) && (this.dangerSearch.isBombLine(this.client.playerX+1, this.client.playerY, this.client.map) == false))
+            case Direction.DOWN: return ((this.isBlock(this.client.map[this.client.playerY + 1][this.client.playerX]) == false) && (this.dangerSearch.isBombLine(this.client.playerX, this.client.playerY+1, this.client.map) == false))
+            case Direction.LEFT: return ((this.isBlock(this.client.map[this.client.playerY][this.client.playerX - 1]) == false) && (this.dangerSearch.isBombLine(this.client.playerX-1, this.client.playerY, this.client.map) == false))
+        }
+		this.direction = this.getFreeDirection(this.client.playerX, this.client.playerY, this.client.map);
+        return false;
+    }
     getFreeDirection(x,y,map) {
         var direction = Direction.UP;
 
-        if (this.isBlock(map[y-1][x]) == false) {}
+        if (this.isBlock(map[y-1][x]) == false){}
         else if (this.isBlock(map[y][x + 1]) == false) { direction = Direction.RIGHT; }
         else if (this.isBlock(map[y+1][x]) == false) { direction = Direction.DOWN; }
         else if (this.isBlock(map[y][x - 1]) == false) { direction = Direction.LEFT; }
         return direction;
     }
-	isWillExplode(x, y)
-	{
-		if (this.dangerSearch.isBombLine(x, y, this.client.map)) return true;
-		return false;
-	}
     isDirectionFree(direction) {
         switch(direction) {
             case Direction.UP: return (this.isBlock(this.client.map[this.client.playerY - 1][this.client.playerX])) == false
@@ -173,7 +192,7 @@ class GameManager {
 class DangerSearch {
 
     constructor() {
-        this.BOMB_AREA = 4;
+        this.BOMB_AREA = 3;
     }
 
     isDangerous(x, y, map) {
@@ -182,7 +201,7 @@ class DangerSearch {
 
     isBombLine(x, y, map) {
         var me = this;
-        for (var offset = 1; offset <= this.BOMB_AREA; offset++) {
+        for (var offset = 0; offset <= this.BOMB_AREA; offset++) {
 			if (this.isBomb(map[y][x + offset] ? map[y][x + offset] : null) ||
                 this.isBomb(map[y][x - offset] ? map[y][x - offset] : null) ||
                 this.isBomb(map[y + offset] ? map[y + offset][x] : null) ||
@@ -204,13 +223,14 @@ class DangerSearch {
                 block == BombermanBlocks.BombTimer3 ||
                 block == BombermanBlocks.BombTimer4 ||
                 block == BombermanBlocks.BombTimer5 ||
-                block == BombermanBlocks.OtherBombBomberman;
+                block == BombermanBlocks.OtherBombBomberman||
+                block == BombermanBlocks.BombBomberman;
     }
 }
 class scorePredictor
 {	
     constructor() {
-        this.BOMB_AREA = 4;
+        this.BOMB_AREA = 3;
 		this.score = 0;
     }
 	isBlockValuable(client)
