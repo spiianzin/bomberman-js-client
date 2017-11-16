@@ -143,10 +143,10 @@ class GameManager {
 	getSafeDirection(x,y,map) {
         var direction = Direction.UP;
 
-        if ((this.isBlock(map[y-1][x]) == false) &&	(this.dangerSearch.isBombLine(x,y-1,map)==false)){}
-        else if ((this.isBlock(map[y][x + 1]) == false) && (this.dangerSearch.isBombLine(x+1,y,map)==false)) { direction = Direction.RIGHT; }
-        else if ((this.isBlock(map[y+1][x]) == false) && (this.dangerSearch.isBombLine(x,y+1,map)==false)) { direction = Direction.DOWN; }
-        else if ((this.isBlock(map[y][x - 1]) == false) && (this.dangerSearch.isBombLine(x-1,y,map)==false)) { direction = Direction.LEFT; }
+        if ((this.isBlock(map[y-1][x]) == false) && (this.isBlock(map[y-2][x]) == false) &&	(this.dangerSearch.isBombLine(x,y-1,map)==false)){}
+        else if ((this.isBlock(map[y][x + 1]) == false) && (this.isBlock(map[y][x + 2]) == false) && (this.dangerSearch.isBombLine(x+1,y,map)==false)) { direction = Direction.RIGHT; }
+        else if ((this.isBlock(map[y+1][x]) == false) && (this.isBlock(map[y+2][x]) == false) && (this.dangerSearch.isBombLine(x,y+1,map)==false)) { direction = Direction.DOWN; }
+        else if ((this.isBlock(map[y][x - 1]) == false) && (this.isBlock(map[y][x - 2]) == false) && (this.dangerSearch.isBombLine(x-1,y,map)==false)) { direction = Direction.LEFT; }
 		else {direction = this.direction}
         return direction;
     }
