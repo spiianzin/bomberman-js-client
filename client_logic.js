@@ -59,7 +59,7 @@ class GameManager {
 
     logic() {
         this.atack(); 
-        if (this.dangerSearch.isDangerous(this.client.playerX, this.client.playerY, this.client.map)) {
+        if (this.dangerSearch.isDangerous(this.client.playerX, this.client.playerY, this.client.map) || !this.isDirectionSafe(this.direction)) {
             if (this.state != State.SAVING) {
                 this.state = State.SAVING;
                 this.logger.log(State.SAVING); 
@@ -143,10 +143,10 @@ class GameManager {
 	getSafeDirection(x,y,map) {
         var direction = Direction.UP;
 
-        if ((this.isBlock(map[y-1][x]) == false) &&	(this.dangerSearch.isBombLine(x,y-1,map)==false) && (this.isBlock(this.client.map[this.client.playerY-2][this.client.playerX]) == false)){}
-        else if ((this.isBlock(map[y][x + 1]) == false) && (this.dangerSearch.isBombLine(x+1,y,map)==false) && (this.isBlock(this.client.map[this.client.playerY][this.client.playerX+2]) == false)) { direction = Direction.RIGHT; }
-        else if ((this.isBlock(map[y+1][x]) == false) && (this.dangerSearch.isBombLine(x,y+1,map)==false) && (this.isBlock(this.client.map[this.client.playerY+2][this.client.playerX]) == false)) { direction = Direction.DOWN; }
-        else if ((this.isBlock(map[y][x - 1]) == false) && (this.dangerSearch.isBombLine(x-1,y,map)==false) && (this.isBlock(this.client.map[this.client.playerY][this.client.playerX-2]) == false)) { direction = Direction.LEFT; }
+        if ((this.isBlock(map[y-1][x]) == false) &&	(this.dangerSearch.isBombLine(x,y-1,map)==false)){}
+        else if ((this.isBlock(map[y][x + 1]) == false) && (this.dangerSearch.isBombLine(x+1,y,map)==false)) { direction = Direction.RIGHT; }
+        else if ((this.isBlock(map[y+1][x]) == false) && (this.dangerSearch.isBombLine(x,y+1,map)==false)) { direction = Direction.DOWN; }
+        else if ((this.isBlock(map[y][x - 1]) == false) && (this.dangerSearch.isBombLine(x-1,y,map)==false)) { direction = Direction.LEFT; }
 		else {direction = this.direction}
         return direction;
     }
